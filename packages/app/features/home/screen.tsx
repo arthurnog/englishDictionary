@@ -7,6 +7,7 @@ import styles from './styles';
 
 export function HomeScreen() {
   const sx = useSx()
+  const [searchResults, setSearchResults] = useState([])
 
   const handleSearch = useCallback(async (searchText: String) => {
     const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${searchText}`);
