@@ -1,32 +1,33 @@
 import { Text, useSx, View, H1, P, Row, A } from 'dripsy'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { TextLink } from 'solito/link'
 import { MotiLink } from 'solito/moti'
 import SearchBar from './searchBar'
+import ResultDisplay, { parseResponse, ResultType } from './resultDisplay'
 import styles from './styles';
 
 export function HomeScreen() {
-  const sx = useSx()
-  const [searchResults, setSearchResults] = useState([])
+  const [searchResults, setSearchResults] = useState<ResultType[]>([])
 
   const handleSearch = useCallback(async (searchText: String) => {
-    const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${searchText}`);
-    const data = await response.json();
-    console.log(data);
+    try {
+      const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${searchText}`);
+      const results = await parseResponse(response);
+      setSearchResults(results);
+    } catch(e) {
+      setSearchResults([]);
+    }
   },[]);
 
+
   return (
-    <View
-      sx={{ flex: 1, justifyContent: 'center', alignItems: 'center', p: 16 }}
-    >
+    <View style={styles.container}>
       <H1 sx={{ fontWeight: '800' }}>English Dictionary</H1>
       <View style={styles.container}>
         <SearchBar onButtonPress={handleSearch} />
+        {searchResults.map(result => <ResultDisplay key={result.word} word={result.word} phonetic={result.phonetic} />)}
       </View>
       <View sx={{ height: 32 }} />
-      <Row>
-        
-      </Row>
     </View>
   )
 }
