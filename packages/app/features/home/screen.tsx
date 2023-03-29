@@ -6,6 +6,11 @@ import SearchBar from './searchBar'
 import ResultDisplay, { parseResponse, ResultType } from './resultDisplay'
 import styles from './styles';
 
+const mockResults : ResultType[] = [
+  {word:'abacate', phonetic:'/abacate/'},
+  {word:'banana', phonetic:'/banana/'}
+];
+
 export function HomeScreen() {
   const [searchResults, setSearchResults] = useState<ResultType[]>([])
 
