@@ -1,75 +1,37 @@
-import { Text, useSx, View, H1, P, Row, A } from 'dripsy'
-import { TextLink } from 'solito/link'
-import { MotiLink } from 'solito/moti'
+import { View, H1 } from 'dripsy'
+import { useCallback, useState } from 'react'
+import SearchBar from './searchBar'
+import ResultDisplay, { parseResponse, ResultType } from './resultDisplay'
+import styles from './styles';
 
 export function HomeScreen() {
-  const sx = useSx()
+  const [searchResults, setSearchResults] = useState<ResultType[]>([])
+
+  const handleSearch = useCallback(async (searchText: String) => {
+    try {
+      const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${searchText}`);
+      const results = await parseResponse(response);
+      setSearchResults(results);
+    } catch(e) {
+      setSearchResults([]);
+    }
+  },[]);
+
 
   return (
-    <View
-      sx={{ flex: 1, justifyContent: 'center', alignItems: 'center', p: 16 }}
-    >
-      <H1 sx={{ fontWeight: '800' }}>Welcome to Solito.</H1>
-      <View sx={{ maxWidth: 600 }}>
-        <P sx={{ textAlign: 'center' }}>
-          Here is a basic starter to show you how you can navigate from one
-          screen to another. This screen uses the same code on Next.js and React
-          Native.
-        </P>
-        <P sx={{ textAlign: 'center' }}>
-          Solito is made by{' '}
-          <A
-            href="https://twitter.com/fernandotherojo"
-            // @ts-expect-error react-native-web only types
-            hrefAttrs={{
-              target: '_blank',
-              rel: 'noreferrer',
-            }}
-            sx={{ color: 'blue' }}
-          >
-            Fernando Rojo
-          </A>
-          .
-        </P>
+    <View style={styles.container}>
+      <H1 sx={{ fontWeight: '800' }}>English Dictionary</H1>
+      <View style={styles.container}>
+        <SearchBar onButtonPress={handleSearch} />
+        {searchResults.map((result) => (
+          <ResultDisplay
+            key={result.meanings[0]?.definitions[0]?.definition}
+            meanings={result.meanings}
+            word={result.word}
+            phonetic={result.phonetic}
+          />))}
       </View>
       <View sx={{ height: 32 }} />
-      <Row>
-        <TextLink
-          href="/user/fernando"
-          textProps={{
-            style: sx({ fontSize: 16, fontWeight: 'bold', color: 'blue' }),
-          }}
-        >
-          Regular Link
-        </TextLink>
-        <View sx={{ width: 32 }} />
-        <MotiLink
-          href="/user/fernando"
-          animate={({ hovered, pressed }) => {
-            'worklet'
-
-            return {
-              scale: pressed ? 0.95 : hovered ? 1.1 : 1,
-              rotateZ: pressed ? '0deg' : hovered ? '-3deg' : '0deg',
-            }
-          }}
-          from={{
-            scale: 0,
-            rotateZ: '0deg',
-          }}
-          transition={{
-            type: 'timing',
-            duration: 150,
-          }}
-        >
-          <Text
-            selectable={false}
-            sx={{ fontSize: 16, color: 'black', fontWeight: 'bold' }}
-          >
-            Moti Link
-          </Text>
-        </MotiLink>
-      </Row>
     </View>
   )
 }
